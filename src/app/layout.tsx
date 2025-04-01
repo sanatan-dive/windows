@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Image from "next/image";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,6 +28,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <Image
+        src="https://cdn.wallpaperhub.app/cloudcache/2/b/b/9/0/6/2bb9062555f5b2bf7e5a5f8d92dfb841ec6919e8.jpg"
+        alt="background"
+        width={0}
+        height={0}
+        sizes="100vw"
+        className="fixed inset-0 -z-10 h-full w-full object-cover"
+      />
         {children}
       </body>
     </html>
