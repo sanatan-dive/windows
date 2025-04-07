@@ -1,8 +1,8 @@
 "use client";
 
-import { Battery, BellRing, Volume2, Wifi } from "lucide-react";
+import {  BatteryFull, BellRing, Volume2, Wifi } from "lucide-react";
 import Image from "next/image";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, JSX } from "react";
 
 // Define interfaces for type safety
 interface AppIcon {
@@ -171,7 +171,7 @@ function Taskbar(): JSX.Element {
             <Volume2 size={16} />
           </button>
           <button className="p-1.5 hover:bg-gray-200 rounded-sm transition-colors">
-            <Battery size={16} />
+            <BatteryFull size={16} />
           </button>
           <div
             className="flex flex-col items-end hover:bg-gray-200 rounded-sm p-1 justify-center px-2 cursor-pointer"
