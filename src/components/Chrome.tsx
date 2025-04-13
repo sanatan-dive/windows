@@ -1,112 +1,210 @@
 'use client'; // Required for client-side interactivity
 
-import React from 'react';
-import Image from 'next/image';
+import React, { useState, useEffect } from 'react';
+import Iframe from './iframe/Iframe';
+
+interface Tab {
+  id: number;
+  title: string;
+  url: string;
+  isLoading: boolean;
+}
 
 function Chrome() {
+  const [isOpen, setIsOpen] = useState(true);
+  const [isMaximized, setIsMaximized] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
+  const [tabs, setTabs] = useState<Tab[]>([
+    {
+      id: 1,
+      title: 'Google Search',
+      url: 'https://www.google.com/webhp?igu=1', // Changed to a simple URL for testing
+      isLoading: true,
+    },
+  ]);
+  const [activeTabId, setActiveTabId] = useState(1);
+
+  // Add a new tab
+  const addNewTab = () => {
+    const newTabId = tabs.length ? tabs[tabs.length - 1].id + 1 : 1;
+    const newTab: Tab = {
+      id: newTabId,
+      title: 'New Tab',
+      url: 'https://www.google.com/webhp?igu=2', // Use a reliable URL
+      isLoading: true,
+    };
+    console.log('Adding new tab:', newTab);
+    setTabs([...tabs, newTab]);
+    setActiveTabId(newTabId);
+  };
+
+  // Close a tab
+  const closeTab = (tabId: number) => {
+    console.log('Closing tab:', tabId);
+    const newTabs = tabs.filter((tab) => tab.id !== tabId);
+    setTabs(newTabs);
+    if (activeTabId === tabId && newTabs.length) {
+      setActiveTabId(newTabs[0].id);
+    } else if (!newTabs.length) {
+      setIsOpen(false);
+    }
+  };
+
+  // Switch to a specific tab
+  const switchTab = (tabId: number) => {
+    console.log('Switching to tab:', tabId);
+    setActiveTabId(tabId);
+  };
+
+  // Handle iframe load completion for a specific tab
+  const handleIframeLoad = (tabId: number) => {
+    console.log('Iframe loaded for tab:', tabId);
+    setTabs((prevTabs) =>
+      prevTabs.map((tab) =>
+        tab.id === tabId ? { ...tab, isLoading: false } : tab
+      )
+    );
+  };
+
+  // If closed, return null
+  if (!isOpen) return null;
+
+  // If minimized, render only a minimal placeholder
+  if (isMinimized) {
+    return (
+      <button
+        onClick={() => setIsMinimized(false)}
+        className="fixed bottom-4 left-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+      >
+        Restore Chrome
+      </button>
+    );
+  }
+
+  // Get the active tab
+  const activeTab = tabs.find((tab) => tab.id === activeTabId);
+  console.log('Active tab:', activeTab);
+
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-white shadow-lg rounded-lg overflow-hidden">
-      {/* Chrome Header */}
-      <div className="flex items-center bg-gray-100 p-1">
-        {/* Tab */}
-        <div className="flex items-center bg-white rounded-t-lg px-3 py-2 max-w-xs">
-          <Image src="/chrome-favicon.png" alt="Chrome" width={16} height={16} className="mr-2" />
-          <span className="text-sm truncate">New Tab</span>
-          <button className="ml-2 p-1 hover:bg-gray-200 rounded-full">
-            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-        
-        {/* Controls */}
-        <div className="ml-auto flex items-center space-x-2">
-          <button className="p-1 hover:bg-gray-200 rounded-full">
-            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v12M6 12h12" />
-            </svg>
-          </button>
-          <button className="p-1 hover:bg-gray-200 rounded-full">
-            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-          <button className="p-1 hover:bg-gray-200 rounded-full">
-            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-      </div>
-      
-      {/* Address Bar */}
-      <div className="flex items-center px-4 py-2 bg-gray-100 border-b border-gray-200">
-        <div className="flex items-center mr-3 space-x-2">
-          <button className="p-1 hover:bg-gray-200 rounded-full">
-            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <button className="p-1 hover:bg-gray-200 rounded-full">
-            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-          <button className="p-1 hover:bg-gray-200 rounded-full">
-            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-          </button>
-        </div>
-        
-        <div className="flex-1 flex items-center bg-white rounded-full border border-gray-300 px-3 py-1">
-          <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" className="mr-2 text-gray-500">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <span className="text-sm text-gray-600">Search Google or type a URL</span>
-        </div>
-        
-        <div className="ml-3 flex items-center space-x-2">
-          <button className="p-1 hover:bg-gray-200 rounded-full">
-            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-            </svg>
-          </button>
-        </div>
-      </div>
-      
-      {/* Content */}
-      <div className="flex-1 bg-white p-8 overflow-auto">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-center mb-6">
-            <Image src="/chrome-logo.png" alt="Google Chrome" width={72} height={72} />
-          </div>
-          
-          <div className="flex justify-center">
-            <div className="relative w-1/2">
-              <div className="bg-white rounded-full border border-gray-300 px-4 py-3 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center">
-                  <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" className="mr-3 text-gray-500">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                  <span className="text-gray-500">Search Google or type a URL</span>
-                </div>
-              </div>
+    <div
+      className="absolute bg-white shadow-lg rounded-lg overflow-hidden transition-all duration-300"
+      style={{
+        border: '1px solid #e5e7eb',
+        width: isMaximized ? '100%' : '95%',
+        height: isMaximized ? '100%' : '95%',
+        maxWidth: isMaximized ? 'none' : '95%',
+        maxHeight: isMaximized ? 'none' : '95%',
+        top: isMaximized ? 0 : '50%',
+        left: isMaximized ? 0 : '50%',
+        transform: isMaximized ? 'none' : 'translate(-50%, -50%)',
+        borderRadius: isMaximized ? 0 : '8px',
+      }}
+    >
+      {/* Windows 11-style window header */}
+      <div className="flex justify-between items-center bg-gray-100 px-4 py-2 border-b border-gray-200">
+        <div className="flex-1 flex items-center">
+          {/* Tab Bar */}
+          {tabs.map((tab) => (
+            <div
+              key={tab.id}
+              className={`relative px-4 py-2 mr-1 rounded-t-md cursor-pointer flex items-center ${
+                activeTabId === tab.id
+                  ? 'bg-white border-t border-l border-r border-gray-200'
+                  : 'bg-gray-200 hover:bg-gray-300'
+              }`}
+              onClick={() => switchTab(tab.id)}
+            >
+              <span className="text-sm truncate max-w-[150px]">
+                {tab.title}
+              </span>
+              <button
+                className="ml-2 text-gray-500 hover:text-red-500"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  closeTab(tab.id);
+                }}
+              >
+                ×
+              </button>
             </div>
-          </div>
-          
-          <div className="mt-12 grid grid-cols-4 gap-6">
-            {/* Shortcut tiles */}
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="flex flex-col items-center p-4 hover:bg-gray-100 rounded-lg cursor-pointer">
-                <div className="w-12 h-12 rounded-full bg-gray-200 mb-3 flex items-center justify-center">
-                  <span className="text-gray-500 text-lg">{String.fromCharCode(65 + i)}</span>
-                </div>
-                <span className="text-xs text-gray-700">Shortcut {i + 1}</span>
-              </div>
-            ))}
-          </div>
+          ))}
+          {/* New Tab Button */}
+          <button
+            onClick={addNewTab}
+            className="ml-2 px-2 py-1 text-gray-900 hover:bg-gray-200 rounded-md"
+            title="New Tab"
+          >
+            +
+          </button>
         </div>
+        <div className="flex items-center space-x-2">
+          {/* Window control buttons */}
+          <button
+            onClick={() => setIsMinimized(true)}
+            className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-200 rounded-md transition-colors"
+            title="Minimize"
+          >
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3 12h18v2H3z" />
+            </svg>
+          </button>
+          <button
+            onClick={() => setIsMaximized(!isMaximized)}
+            className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-200 rounded-md transition-colors"
+            title={isMaximized ? 'Restore' : 'Maximize'}
+          >
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+              {isMaximized ? (
+                <path d="M3 5v14h18V5H3zm4 4h10v6H7V9z" />
+              ) : (
+                <path d="M3 5v14h18V5H3zm2 2h14v10H5V7z" />
+              )}
+            </svg>
+          </button>
+          <button
+            onClick={() => setIsOpen(false)}
+            className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-red-500 hover:text-white rounded-md transition-colors"
+            title="Close"
+          >
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M6 6l12 12M6 18L18 6" stroke="currentColor" strokeWidth="2" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Content area with skeleton loader */}
+      <div className="w-full h-[calc(100%-44px)] relative">
+        {!activeTab ? (
+          <div className="flex items-center justify-center h-full text-gray-500">
+            No active tab
+          </div>
+        ) : (
+          <>
+            {activeTab.isLoading && (
+              <div className="absolute inset-0 bg-gray-100 animate-pulse">
+                <div className="h-12 bg-gray-200 m-4 rounded" />
+                <div className="h-8 bg-gray-200 mx-4 my-2 rounded w-1/2" />
+                <div className="h-8 bg-gray-200 mx-4 my-2 rounded w-1/3" />
+                <div className="space-y-2 mt-4 px-4">
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="h-4 bg-gray-200 rounded w-full" />
+                  ))}
+                </div>
+              </div>
+            )}
+            <Iframe
+              iframeSrc={activeTab.url}
+              iframeSize={{ width: '100%', height: '100%' }}
+              title={activeTab.title}
+              style={{
+                border: 'none',
+                display: activeTab.isLoading ? 'none' : 'block',
+              }}
+              onLoad={() => handleIframeLoad(activeTab.id)}
+            />
+          </>
+        )}
       </div>
     </div>
   );

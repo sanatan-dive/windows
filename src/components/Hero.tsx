@@ -4,6 +4,7 @@ import Image from 'next/image';
 import React, { useState } from 'react';
 import { Check } from 'lucide-react';
 import Chrome from './Chrome';
+import Iframe from './iframe/Iframe';
 
 function ContextMenu({ x, y }: { x: number; y: number }) {
   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
@@ -155,10 +156,15 @@ function Hero() {
 
 
   const handleChromeClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.stopPropagation();
-    console.log("lol")
-    setShowChrome(true); // Show Chrome when clicked
-    setActiveIcon('chrome');
+    // e.stopPropagation();
+    console.log('Chrome clicked');
+  if(showChrome===false){
+    setShowChrome(true);
+  } 
+  else{setShowChrome(false)}// Toggle the Chrome browser visibility
+    setActiveIcon('chrome'); //
+  
+
   };
 
   const handleClick = () => {
@@ -175,7 +181,7 @@ function Hero() {
     <div
       onClick={handleClick}
       onContextMenu={handleContextMenu}
-      className="h-screen w-screen relative overflow-hidden bg-[url('/windows-11-background.jpg')] bg-cover"
+      className="h-screen w-screen relative overflow-hidden bg-[url('/windows.jpg')] bg-cover"
     >
       <div className="absolute top-5 left-5">
         <div
@@ -227,7 +233,8 @@ function Hero() {
         </div>
       </div>
 
-      {showChrome && <Chrome />}
+      {showChrome && 
+      <Chrome />}
 
       {/* Context Menu */}
       {contextMenu.visible && <ContextMenu x={contextMenu.x} y={contextMenu.y} />}
