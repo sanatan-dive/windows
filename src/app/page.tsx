@@ -1,5 +1,5 @@
 import Hero from "@/components/Hero";
-import Taskbar from "@/components/Taskbar";
+import Taskbar from "@/components/Taskbar/Taskbar";
 import Image from "next/image";
 
 
